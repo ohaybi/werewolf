@@ -158,44 +158,34 @@
     </div>
 
     <script type="module">
-      // Firebase imports
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-      import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-      import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, arrayUnion, collection, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+      // Firebase imports - Menggunakan versi 11.8.1
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+      import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+      import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, arrayUnion, collection, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
       // --- Firebase Configuration ---
-      // These variables will be replaced by the Canvas environment.
-      // For local testing, you can replace them with your actual Firebase config.
-      const firebaseConfigFromEnv = typeof __firebase_config !== "undefined" ? __firebase_config : null;
-      const appIdFromEnv = typeof __app_id !== "undefined" ? __app_id : "default-werewolf-app";
-      const initialAuthTokenFromEnv = typeof __initial_auth_token !== "undefined" ? __initial_auth_token : null;
-
-      // const firebaseConfig = JSON.parse(firebaseConfigFromEnv);
-
-      // Your web app's Firebase configuration
-      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+      // GANTI DENGAN KONFIGURASI FIREBASE ANDA YANG SEBENARNYA:
       const firebaseConfig = {
-        apiKey: "AIzaSyB0v-WoOBPwGGz3PiFXxb-UW__3zVkA1n4",
-        authDomain: "testingwerewolf.firebaseapp.com",
-        projectId: "testingwerewolf",
-        storageBucket: "testingwerewolf.firebasestorage.app",
-        messagingSenderId: "328797346508",
-        appId: "1:328797346508:web:d7005d4e156f86789b0069"
+        apiKey: "AIzaSyB0v-WoOBPwGGz3PiFXxb-UW__3zVkA1n4", // Ganti dengan milik Anda
+        authDomain: "testingwerewolf.firebaseapp.com",   // Ganti dengan milik Anda
+        projectId: "testingwerewolf",                   // Ganti dengan milik Anda
+        storageBucket: "testingwerewolf.firebasestorage.app", // Ganti dengan milik Anda
+        messagingSenderId: "328797346508",              // Ganti dengan milik Anda
+        appId: "1:328797346508:web:d7005d4e156f86789b0069" // Ganti dengan milik Anda
       };
-
-      // Initialize Firebase
-      const appId = "1:328797346508:web:d7005d4e156f86789b0069";
 
       // Initialize Firebase
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
       const db = getFirestore(app);
+      
+      // Gunakan appId dari firebaseConfig Anda untuk path Firestore
+      const appId = firebaseConfig.appId || 'default-werewolf-app'; // Fallback jika appId tidak ada di config
 
-      if (!firebaseConfigFromEnv) {
-        console.error("Firebase config is not available. App will not work.");
-        displayError("Konfigurasi Firebase tidak ditemukan. Aplikasi tidak dapat berjalan.");
-        // You might want to disable UI elements or show a persistent error message here
-      }
+      // Variabel initialAuthTokenFromEnv akan undefined di luar Canvas,
+      // sehingga otentikasi anonim akan digunakan sebagai fallback.
+      const initialAuthTokenFromEnv = typeof __initial_auth_token !== "undefined" ? __initial_auth_token : null;
+
 
       // --- Global State & Constants ---
       let currentUser = null;
@@ -278,7 +268,6 @@
       function showToast(message) {
         toastMessage.textContent = message;
         toastNotification.classList.remove("hidden");
-        // The animation will hide it automatically
         setTimeout(() => {
           toastNotification.classList.add("hidden");
         }, 3000);
@@ -286,10 +275,14 @@
 
       function displayError(message, title = "Error") {
         console.error("Error displayed:", title, message);
-        errorModalTitle.textContent = title;
-        errorModalMessage.textContent = message;
-        errorModal.classList.remove("hidden");
-        errorModal.classList.add("opacity-100");
+        if (errorModalTitle && errorModalMessage && errorModal) { // Tambahkan pengecekan null
+            errorModalTitle.textContent = title;
+            errorModalMessage.textContent = message;
+            errorModal.classList.remove("hidden");
+            errorModal.classList.add("opacity-100");
+        } else {
+            console.error("Error modal elements not found. Cannot display error:", message);
+        }
       }
 
       errorModalCloseBtn.addEventListener("click", () => {
@@ -301,24 +294,25 @@
       onAuthStateChanged(auth, (user) => {
         if (user) {
           currentUser = user;
-          userIdDisplay.textContent = currentUser.uid.substring(0, 8) + "..."; // Display part of UID
+          userIdDisplay.textContent = currentUser.uid.substring(0, 8) + "...";
           console.log("User is signed in:", currentUser.uid);
-          // Enable buttons that require auth
         } else {
-          // User is signed out
           currentUser = null;
           userIdDisplay.textContent = "Belum Login";
-          console.log("User is signed out. Attempting anonymous sign-in.");
-          if (initialAuthTokenFromEnv) {
+          console.log("User is signed out. Attempting appropriate sign-in method.");
+          if (initialAuthTokenFromEnv) { // Ini akan false di GitHub Pages jika __initial_auth_token tidak terdefinisi
+            console.log("Attempting sign-in with custom token.");
             signInWithCustomToken(auth, initialAuthTokenFromEnv).catch((error) => {
-              console.error("Error signing in with custom token:", error);
-              displayError("Gagal melakukan otentikasi dengan token khusus.");
+              console.error("Error signing in with custom token:", error); // Ini akan muncul jika token ada tapi tidak valid
+              displayError("Gagal melakukan otentikasi dengan token khusus. Mencoba login anonim.");
+              // Fallback ke anonymous sign-in jika custom token gagal
               signInAnonymously(auth).catch((anonError) => {
                 console.error("Error signing in anonymously after custom token failed:", anonError);
                 displayError("Gagal melakukan otentikasi. Fitur mungkin terbatas.");
               });
             });
-          } else {
+          } else { // Ini yang akan berjalan di GitHub Pages (jika __initial_auth_token tidak ada) atau jika initialAuthTokenFromEnv adalah string kosong
+            console.log("Attempting anonymous sign-in directly.");
             signInAnonymously(auth).catch((error) => {
               console.error("Error signing in anonymously:", error);
               displayError("Gagal melakukan otentikasi anonim. Beberapa fitur mungkin tidak berfungsi.");
@@ -340,7 +334,7 @@
           await setDoc(roomDocRef, {
             hostId: currentUser.uid,
             players: [],
-            status: "waiting", // "waiting", "started", "ended"
+            status: "waiting",
             narrative: "",
             createdAt: serverTimestamp(),
           });
@@ -357,7 +351,6 @@
       copyRoomCodeBtn.addEventListener("click", () => {
         roomCodeDisplay.select();
         try {
-          // Using document.execCommand as navigator.clipboard might be restricted in iframes
           const successful = document.execCommand("copy");
           if (successful) {
             showToast("Kode room disalin!");
@@ -368,7 +361,6 @@
           showToast("Gagal menyalin kode room.");
           console.error("Fallback: Oops, unable to copy", err);
         }
-        // Deselect text
         window.getSelection().removeAllRanges();
       });
 
@@ -410,7 +402,6 @@
             return;
           }
 
-          // Check if player already joined (by UID)
           if (roomData.players.some((p) => p.userId === currentUser.uid)) {
             showToast("Anda sudah bergabung di room ini.");
           } else {
@@ -459,7 +450,6 @@
               narrative: narrative,
             });
           });
-          // The onSnapshot listener will handle UI changes for host and players
           showToast("Permainan dimulai!");
         } catch (error) {
           console.error("Error starting game:", error);
@@ -470,7 +460,7 @@
       [backToHomeHostBtn, backToHomePlayerBtn, backToHomeFromNarrativeBtn].forEach((btn) => {
         btn.addEventListener("click", () => {
           if (roomUnsubscribe) {
-            roomUnsubscribe(); // Stop listening to previous room
+            roomUnsubscribe();
             roomUnsubscribe = null;
           }
           currentRoomId = null;
@@ -485,7 +475,6 @@
         });
       });
 
-      // --- Game Logic Functions ---
       function assignRoles(players) {
         const numPlayers = players.length;
         let rolesToAssign = [];
@@ -493,14 +482,13 @@
         if (numPlayers >= 3) rolesToAssign.push(ROLES.WEREWOLF);
         if (numPlayers >= 3) rolesToAssign.push(ROLES.SEER);
         if (numPlayers >= 4) rolesToAssign.push(ROLES.GUARDIAN);
-        if (numPlayers >= 6) rolesToAssign.push(ROLES.WEREWOLF); // Second werewolf
+        if (numPlayers >= 6) rolesToAssign.push(ROLES.WEREWOLF); 
 
         const numSpecialRoles = rolesToAssign.length;
         for (let i = 0; i < numPlayers - numSpecialRoles; i++) {
           rolesToAssign.push(ROLES.WARGA);
         }
 
-        // Shuffle roles
         for (let i = rolesToAssign.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
           [rolesToAssign[i], rolesToAssign[j]] = [rolesToAssign[j], rolesToAssign[i]];
@@ -508,7 +496,7 @@
 
         return players.map((player, index) => ({
           ...player,
-          role: rolesToAssign[index] || ROLES.WARGA, // Fallback, should not happen if logic is correct
+          role: rolesToAssign[index] || ROLES.WARGA, 
         }));
       }
 
@@ -573,7 +561,7 @@ Selanjutnya, pandu sesi diskusi dan voting. Ulangi siklus malam dan siang sesuai
 
       function listenToRoomChanges(roomId) {
         if (roomUnsubscribe) {
-          roomUnsubscribe(); // Stop listening to previous room if any
+          roomUnsubscribe(); 
         }
         const roomDocRef = doc(db, roomsCollectionPath, roomId);
         roomUnsubscribe = onSnapshot(
@@ -587,9 +575,8 @@ Selanjutnya, pandu sesi diskusi dan voting. Ulangi siklus malam dan siang sesuai
             }
 
             const roomData = docSnap.data();
-            currentRoomId = docSnap.id; // Update in case of re-join
+            currentRoomId = docSnap.id; 
 
-            // Host view updates
             if (currentUser && roomData.hostId === currentUser.uid && views.createRoom.classList.contains("hidden") === false) {
               playerCountDisplay.textContent = roomData.players.length;
               if (roomData.players.length > 0) {
@@ -601,34 +588,27 @@ Selanjutnya, pandu sesi diskusi dan voting. Ulangi siklus malam dan siang sesuai
               startGameBtn.textContent = roomData.players.length < MIN_PLAYERS ? `Mulai Permainan (Min. ${MIN_PLAYERS} Pemain)` : "Mulai Permainan";
             }
 
-            // Handle game state changes
             if (roomData.status === "started") {
               if (currentUser && roomData.hostId === currentUser.uid) {
                 hostNarrativeContent.textContent = roomData.narrative;
                 showView("hostNarrative");
-              } else {
-                // Player's view
+              } else { 
                 const myPlayerData = roomData.players.find((p) => p.userId === currentUser.uid);
                 if (myPlayerData && myPlayerData.role) {
                   currentRole = myPlayerData.role;
                   playerRoleDisplay.textContent = currentRole;
                   roleDescription.textContent = ROLE_DESCRIPTIONS[currentRole] || "Deskripsi peran tidak tersedia.";
-                  // Add specific styling/icons per role if desired
                   playerRoleDisplay.className = "text-5xl font-bold p-6 bg-gray-700 rounded-lg shadow-inner ";
                   if (currentRole === ROLES.WEREWOLF) playerRoleDisplay.classList.add("text-red-400");
                   else if (currentRole === ROLES.SEER) playerRoleDisplay.classList.add("text-blue-400");
                   else if (currentRole === ROLES.GUARDIAN) playerRoleDisplay.classList.add("text-green-400");
-                  else playerRoleDisplay.classList.add("text-yellow-400"); // Warga
-
+                  else playerRoleDisplay.classList.add("text-yellow-400"); 
+                  
                   showView("playerRole");
                 } else if (views.waiting.classList.contains("hidden") === false) {
-                  // Still waiting for role, or not part of this game somehow
                   console.log("Game started, but player data/role not found for current user or role is null.");
                 }
               }
-            } else if (roomData.status === "waiting") {
-              // If player is on waiting screen and host starts, this will be handled by "started"
-              // If host is on createRoom screen, player list is updated
             }
           },
           (error) => {
@@ -641,7 +621,7 @@ Selanjutnya, pandu sesi diskusi dan voting. Ulangi siklus malam dan siang sesuai
       }
 
       // --- Initial Load ---
-      showView("home"); // Start at home view
+      showView("home"); 
     </script>
   </body>
 </html>
