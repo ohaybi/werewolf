@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Werewolf: Pembagian Peran</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        overscroll-behavior: none; /* Mencegah pull-to-refresh di mobile */
+      }
+      .modal {
+        transition: opacity 0.3s ease;
+      }
+      .toast {
+        animation: toast-fade-in-out 3s forwards;
+      }
+      @keyframes toast-fade-in-out {
+        0% {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        10% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        90% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+      }
+      /* Custom scrollbar for player list */
+      .player-list::-webkit-scrollbar {
+        width: 8px;
+      }
+      .player-list::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+      }
+      .player-list::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+      }
+      .player-list::-webkit-scrollbar-thumb:hover {
+        background: #555;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-900 text-white flex items-center justify-center min-h-screen p-4">
+    <div id="app-container" class="w-full max-w-md">
+      <!-- Home View -->
+      <div id="home-view" class="space-y-6">
+        <h1 class="text-4xl font-bold text-center text-purple-400">Werewolf Game</h1>
+        <p class="text-center text-gray-300">Pembantu Pembagian Peran</p>
+        <button id="create-room-btn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-150 ease-in-out">Buat Room Baru (Host)</button>
+        <button id="join-room-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-150 ease-in-out">Gabung Room (Pemain)</button>
+        <div class="text-center text-sm text-gray-500 mt-4">User ID: <span id="user-id-display" class="font-mono">Memuat...</span></div>
+      </div>
+
+      <!-- Create Room View (Host) -->
+      <div id="create-room-view" class="hidden space-y-6 p-6 bg-gray-800 rounded-xl shadow-2xl">
+        <h2 class="text-3xl font-bold text-center text-purple-400">Room Host</h2>
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1">Kode Room:</label>
+          <div class="flex items-center space-x-2">
+            <input type="text" id="room-code-display" readonly class="w-full bg-gray-700 text-white p-3 rounded-lg text-xl font-mono tracking-widest text-center border border-gray-600 focus:ring-purple-500 focus:border-purple-500" />
+            <button id="copy-room-code-btn" class="bg-gray-600 hover:bg-gray-500 text-white p-3 rounded-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1">Pemain Bergabung (<span id="player-count">0</span>):</label>
+          <div id="player-list-host" class="player-list max-h-48 overflow-y-auto bg-gray-700 p-3 rounded-lg border border-gray-600 space-y-2">
+            <!-- Player items will be injected here -->
+            <p class="text-gray-400 italic">Belum ada pemain yang bergabung.</p>
+          </div>
+        </div>
+        <button id="start-game-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-150 ease-in-out disabled:bg-gray-500 disabled:cursor-not-allowed" disabled>
+          Mulai Permainan (Min. 3 Pemain)
+        </button>
+        <button id="back-to-home-host-btn" class="w-full bg-gray-600 hover:bg-gray-500 text-white py-2 px-4 rounded-lg transition duration-150 ease-in-out">Kembali</button>
+      </div>
+
+      <!-- Join Room View (Player) -->
+      <div id="join-room-view" class="hidden space-y-6 p-6 bg-gray-800 rounded-xl shadow-2xl">
+        <h2 class="text-3xl font-bold text-center text-blue-400">Gabung Room</h2>
+        <div>
+          <label for="player-name-input" class="block text-sm font-medium text-gray-300 mb-1">Nama Kamu:</label>
+          <input type="text" id="player-name-input" placeholder="Masukkan nama panggilanmu" class="w-full bg-gray-700 text-white p-3 rounded-lg border border-gray-600 focus:ring-blue-500 focus:border-blue-500" />
+        </div>
+        <div>
+          <label for="room-code-input" class="block text-sm font-medium text-gray-300 mb-1">Kode Room:</label>
+          <input
+            type="text"
+            id="room-code-input"
+            placeholder="Masukkan kode room (6 karakter)"
+            maxlength="6"
+            class="w-full bg-gray-700 text-white p-3 rounded-lg uppercase font-mono tracking-widest border border-gray-600 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+        <button id="submit-join-room-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-150 ease-in-out">Gabung</button>
+        <button id="back-to-home-player-btn" class="w-full bg-gray-600 hover:bg-gray-500 text-white py-2 px-4 rounded-lg transition duration-150 ease-in-out">Kembali</button>
+      </div>
+
+      <!-- Waiting View (Player) -->
+      <div id="waiting-view" class="hidden text-center space-y-4 p-6 bg-gray-800 rounded-xl shadow-2xl">
+        <h2 class="text-2xl font-semibold text-gray-200">Menunggu Host Memulai Permainan...</h2>
+        <div class="animate-pulse text-purple-400">
+          <svg class="w-12 h-12 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+          </svg>
+        </div>
+        <p class="text-gray-400">Pastikan kamu tetap di halaman ini.</p>
+        <p class="text-sm text-gray-500">Room: <span id="waiting-room-code" class="font-mono"></span></p>
+        <p class="text-sm text-gray-500">Nama Kamu: <span id="waiting-player-name" class="font-semibold"></span></p>
+      </div>
+
+      <!-- Player Role View -->
+      <div id="player-role-view" class="hidden text-center space-y-6 p-8 bg-gray-800 rounded-xl shadow-2xl">
+        <h2 class="text-2xl font-semibold text-gray-200">Peran Kamu Adalah:</h2>
+        <div id="player-role-display" class="text-5xl font-bold text-yellow-400 p-6 bg-gray-700 rounded-lg shadow-inner">
+          <!-- Role will be injected here -->
+        </div>
+        <p id="role-description" class="text-gray-300"></p>
+        <p class="text-sm text-gray-500">Permainan telah dimulai. Ikuti arahan dari Host.</p>
+      </div>
+
+      <!-- Host Narrative View -->
+      <div id="host-narrative-view" class="hidden space-y-4 p-6 bg-gray-800 rounded-xl shadow-2xl">
+        <h2 class="text-3xl font-bold text-center text-purple-400">Panduan Narasi Host</h2>
+        <div id="host-narrative-content" class="text-left text-gray-200 bg-gray-700 p-4 rounded-lg max-h-96 overflow-y-auto whitespace-pre-wrap leading-relaxed player-list">
+          <!-- Narrative will be injected here -->
+        </div>
+        <button id="back-to-home-from-narrative-btn" class="w-full bg-gray-600 hover:bg-gray-500 text-white py-2 px-4 rounded-lg transition duration-150 ease-in-out mt-4">Keluar Room & Kembali</button>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast-notification" class="toast hidden fixed bottom-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-md">
+      <span id="toast-message"></span>
+    </div>
+    <!-- Error Modal -->
+    <div id="error-modal" class="modal hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50">
+      <div class="bg-gray-800 p-6 rounded-lg shadow-xl max-w-sm w-full">
+        <h3 id="error-modal-title" class="text-xl font-semibold text-red-400 mb-3">Error</h3>
+        <p id="error-modal-message" class="text-gray-300 mb-4">Pesan error.</p>
+        <button id="error-modal-close-btn" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg">Tutup</button>
+      </div>
+    </div>
+
+    <script type="module">
+      // Firebase imports
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+      import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+      import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, arrayUnion, collection, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+      // --- Firebase Configuration ---
+      // These variables will be replaced by the Canvas environment.
+      // For local testing, you can replace them with your actual Firebase config.
+      const firebaseConfigFromEnv = typeof __firebase_config !== "undefined" ? __firebase_config : null;
+      const appIdFromEnv = typeof __app_id !== "undefined" ? __app_id : "default-werewolf-app";
+      const initialAuthTokenFromEnv = typeof __initial_auth_token !== "undefined" ? __initial_auth_token : null;
+
+      if (!firebaseConfigFromEnv) {
+        console.error("Firebase config is not available. App will not work.");
+        displayError("Konfigurasi Firebase tidak ditemukan. Aplikasi tidak dapat berjalan.");
+        // You might want to disable UI elements or show a persistent error message here
+      }
+
+      // const firebaseConfig = JSON.parse(firebaseConfigFromEnv);
+
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-analytics.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+
+      // Your web app's Firebase configuration
+      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+      const firebaseConfig = {
+        apiKey: "AIzaSyCPHgqcSYweuh2sAbOHNPOykEA6mrIjuwE",
+        authDomain: "gaswerewolf.firebaseapp.com",
+        projectId: "gaswerewolf",
+        storageBucket: "gaswerewolf.firebasestorage.app",
+        messagingSenderId: "845189959292",
+        appId: "1:845189959292:web:607f3de5a1727e6f1383f9",
+        measurementId: "G-17KRSSNJFE",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+      const appId = firebaseConfig(appId);
+
+      // Initialize Firebase
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      // --- Global State & Constants ---
+      let currentUser = null;
+      let currentRoomId = null;
+      let currentPlayerName = null;
+      let currentRole = null;
+      let roomUnsubscribe = null; // To stop listening to room changes
+
+      const MIN_PLAYERS = 3;
+      const ROLES = {
+        WEREWOLF: "Werewolf",
+        WARGA: "Warga",
+        GUARDIAN: "Guardian",
+        SEER: "Seer",
+      };
+      const ROLE_DESCRIPTIONS = {
+        [ROLES.WEREWOLF]: "Setiap malam, kamu dan werewolf lain memilih satu pemain untuk dieliminasi.",
+        [ROLES.WARGA]: "Kamu adalah warga biasa. Gunakan intuisimu untuk menemukan werewolf dan mengeliminasinya saat voting.",
+        [ROLES.GUARDIAN]: "Setiap malam, kamu bisa memilih satu pemain (termasuk dirimu) untuk dilindungi dari serangan werewolf.",
+        [ROLES.SEER]: "Setiap malam, kamu bisa memilih satu pemain untuk dilihat perannya (apakah werewolf atau bukan).",
+      };
+
+      const roomsCollectionPath = `/artifacts/${appId}/public/data/rooms`;
+
+      // --- UI Elements ---
+      const views = {
+        home: document.getElementById("home-view"),
+        createRoom: document.getElementById("create-room-view"),
+        joinRoom: document.getElementById("join-room-view"),
+        waiting: document.getElementById("waiting-view"),
+        playerRole: document.getElementById("player-role-view"),
+        hostNarrative: document.getElementById("host-narrative-view"),
+      };
+      const createRoomBtn = document.getElementById("create-room-btn");
+      const joinRoomBtn = document.getElementById("join-room-btn");
+      const roomCodeDisplay = document.getElementById("room-code-display");
+      const copyRoomCodeBtn = document.getElementById("copy-room-code-btn");
+      const playerListHost = document.getElementById("player-list-host");
+      const playerCountDisplay = document.getElementById("player-count");
+      const startGameBtn = document.getElementById("start-game-btn");
+      const backToHomeHostBtn = document.getElementById("back-to-home-host-btn");
+      const backToHomeFromNarrativeBtn = document.getElementById("back-to-home-from-narrative-btn");
+
+      const playerNameInput = document.getElementById("player-name-input");
+      const roomCodeInput = document.getElementById("room-code-input");
+      const submitJoinRoomBtn = document.getElementById("submit-join-room-btn");
+      const backToHomePlayerBtn = document.getElementById("back-to-home-player-btn");
+
+      const waitingRoomCode = document.getElementById("waiting-room-code");
+      const waitingPlayerName = document.getElementById("waiting-player-name");
+
+      const playerRoleDisplay = document.getElementById("player-role-display");
+      const roleDescription = document.getElementById("role-description");
+      const hostNarrativeContent = document.getElementById("host-narrative-content");
+      const userIdDisplay = document.getElementById("user-id-display");
+
+      const toastNotification = document.getElementById("toast-notification");
+      const toastMessage = document.getElementById("toast-message");
+
+      const errorModal = document.getElementById("error-modal");
+      const errorModalTitle = document.getElementById("error-modal-title");
+      const errorModalMessage = document.getElementById("error-modal-message");
+      const errorModalCloseBtn = document.getElementById("error-modal-close-btn");
+
+      // --- Utility Functions ---
+      function showView(viewId) {
+        Object.values(views).forEach((view) => view.classList.add("hidden"));
+        if (views[viewId]) {
+          views[viewId].classList.remove("hidden");
+        } else {
+          console.error(`View with id ${viewId} not found.`);
+          views.home.classList.remove("hidden"); // Fallback to home
+        }
+      }
+
+      function generateRoomCode() {
+        return Math.random().toString(36).substring(2, 8).toUpperCase();
+      }
+
+      function showToast(message) {
+        toastMessage.textContent = message;
+        toastNotification.classList.remove("hidden");
+        // The animation will hide it automatically
+        setTimeout(() => {
+          toastNotification.classList.add("hidden");
+        }, 3000);
+      }
+
+      function displayError(message, title = "Error") {
+        console.error("Error displayed:", title, message);
+        errorModalTitle.textContent = title;
+        errorModalMessage.textContent = message;
+        errorModal.classList.remove("hidden");
+        errorModal.classList.add("opacity-100");
+      }
+
+      errorModalCloseBtn.addEventListener("click", () => {
+        errorModal.classList.add("hidden");
+        errorModal.classList.remove("opacity-100");
+      });
+
+      // --- Firebase Authentication ---
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          currentUser = user;
+          userIdDisplay.textContent = currentUser.uid.substring(0, 8) + "..."; // Display part of UID
+          console.log("User is signed in:", currentUser.uid);
+          // Enable buttons that require auth
+        } else {
+          // User is signed out
+          currentUser = null;
+          userIdDisplay.textContent = "Belum Login";
+          console.log("User is signed out. Attempting anonymous sign-in.");
+          if (initialAuthTokenFromEnv) {
+            signInWithCustomToken(auth, initialAuthTokenFromEnv).catch((error) => {
+              console.error("Error signing in with custom token:", error);
+              displayError("Gagal melakukan otentikasi dengan token khusus.");
+              signInAnonymously(auth).catch((anonError) => {
+                console.error("Error signing in anonymously after custom token failed:", anonError);
+                displayError("Gagal melakukan otentikasi. Fitur mungkin terbatas.");
+              });
+            });
+          } else {
+            signInAnonymously(auth).catch((error) => {
+              console.error("Error signing in anonymously:", error);
+              displayError("Gagal melakukan otentikasi anonim. Beberapa fitur mungkin tidak berfungsi.");
+            });
+          }
+        }
+      });
+
+      // --- Event Listeners ---
+      createRoomBtn.addEventListener("click", async () => {
+        if (!currentUser) {
+          displayError("Anda harus login untuk membuat room.");
+          return;
+        }
+        currentRoomId = generateRoomCode();
+        const roomDocRef = doc(db, roomsCollectionPath, currentRoomId);
+
+        try {
+          await setDoc(roomDocRef, {
+            hostId: currentUser.uid,
+            players: [],
+            status: "waiting", // "waiting", "started", "ended"
+            narrative: "",
+            createdAt: serverTimestamp(),
+          });
+          roomCodeDisplay.value = currentRoomId;
+          listenToRoomChanges(currentRoomId);
+          showView("createRoom");
+          showToast(`Room ${currentRoomId} berhasil dibuat!`);
+        } catch (error) {
+          console.error("Error creating room:", error);
+          displayError(`Gagal membuat room: ${error.message}`);
+        }
+      });
+
+      copyRoomCodeBtn.addEventListener("click", () => {
+        roomCodeDisplay.select();
+        try {
+          // Using document.execCommand as navigator.clipboard might be restricted in iframes
+          const successful = document.execCommand("copy");
+          if (successful) {
+            showToast("Kode room disalin!");
+          } else {
+            showToast("Gagal menyalin kode room.");
+          }
+        } catch (err) {
+          showToast("Gagal menyalin kode room.");
+          console.error("Fallback: Oops, unable to copy", err);
+        }
+        // Deselect text
+        window.getSelection().removeAllRanges();
+      });
+
+      joinRoomBtn.addEventListener("click", () => {
+        showView("joinRoom");
+      });
+
+      submitJoinRoomBtn.addEventListener("click", async () => {
+        if (!currentUser) {
+          displayError("Anda harus login untuk bergabung ke room.");
+          return;
+        }
+        const name = playerNameInput.value.trim();
+        const code = roomCodeInput.value.trim().toUpperCase();
+
+        if (!name) {
+          displayError("Nama tidak boleh kosong.");
+          return;
+        }
+        if (!code || code.length !== 6) {
+          displayError("Kode room tidak valid. Harus 6 karakter.");
+          return;
+        }
+
+        currentPlayerName = name;
+        currentRoomId = code;
+        const roomDocRef = doc(db, roomsCollectionPath, currentRoomId);
+
+        try {
+          const roomSnap = await getDoc(roomDocRef);
+          if (!roomSnap.exists()) {
+            displayError(`Room dengan kode ${currentRoomId} tidak ditemukan.`);
+            return;
+          }
+
+          const roomData = roomSnap.data();
+          if (roomData.status !== "waiting") {
+            displayError("Room ini sudah dimulai atau sudah selesai.");
+            return;
+          }
+
+          // Check if player already joined (by UID)
+          if (roomData.players.some((p) => p.userId === currentUser.uid)) {
+            showToast("Anda sudah bergabung di room ini.");
+          } else {
+            await updateDoc(roomDocRef, {
+              players: arrayUnion({ userId: currentUser.uid, name: currentPlayerName, role: null }),
+            });
+            showToast("Berhasil bergabung dengan room!");
+          }
+
+          listenToRoomChanges(currentRoomId);
+          waitingRoomCode.textContent = currentRoomId;
+          waitingPlayerName.textContent = currentPlayerName;
+          showView("waiting");
+        } catch (error) {
+          console.error("Error joining room:", error);
+          displayError(`Gagal bergabung room: ${error.message}`);
+        }
+      });
+
+      startGameBtn.addEventListener("click", async () => {
+        if (!currentUser || !currentRoomId) {
+          displayError("Kondisi tidak valid untuk memulai game.");
+          return;
+        }
+        const roomDocRef = doc(db, roomsCollectionPath, currentRoomId);
+        try {
+          await runTransaction(db, async (transaction) => {
+            const roomSnap = await transaction.get(roomDocRef);
+            if (!roomSnap.exists()) {
+              throw "Room tidak ditemukan!";
+            }
+            const roomData = roomSnap.data();
+            if (roomData.hostId !== currentUser.uid) {
+              throw "Hanya host yang bisa memulai permainan.";
+            }
+            if (roomData.players.length < MIN_PLAYERS) {
+              throw `Minimal ${MIN_PLAYERS} pemain dibutuhkan.`;
+            }
+
+            const assignedPlayers = assignRoles(roomData.players);
+            const narrative = generateNarrativeForHost(currentRoomId, assignedPlayers);
+
+            transaction.update(roomDocRef, {
+              players: assignedPlayers,
+              status: "started",
+              narrative: narrative,
+            });
+          });
+          // The onSnapshot listener will handle UI changes for host and players
+          showToast("Permainan dimulai!");
+        } catch (error) {
+          console.error("Error starting game:", error);
+          displayError(`Gagal memulai permainan: ${typeof error === "string" ? error : error.message}`);
+        }
+      });
+
+      [backToHomeHostBtn, backToHomePlayerBtn, backToHomeFromNarrativeBtn].forEach((btn) => {
+        btn.addEventListener("click", () => {
+          if (roomUnsubscribe) {
+            roomUnsubscribe(); // Stop listening to previous room
+            roomUnsubscribe = null;
+          }
+          currentRoomId = null;
+          currentPlayerName = null;
+          currentRole = null;
+          playerListHost.innerHTML = '<p class="text-gray-400 italic">Belum ada pemain yang bergabung.</p>';
+          playerCountDisplay.textContent = "0";
+          startGameBtn.disabled = true;
+          roomCodeInput.value = "";
+          playerNameInput.value = "";
+          showView("home");
+        });
+      });
+
+      // --- Game Logic Functions ---
+      function assignRoles(players) {
+        const numPlayers = players.length;
+        let rolesToAssign = [];
+
+        if (numPlayers >= 3) rolesToAssign.push(ROLES.WEREWOLF);
+        if (numPlayers >= 3) rolesToAssign.push(ROLES.SEER);
+        if (numPlayers >= 4) rolesToAssign.push(ROLES.GUARDIAN);
+        if (numPlayers >= 6) rolesToAssign.push(ROLES.WEREWOLF); // Second werewolf
+
+        const numSpecialRoles = rolesToAssign.length;
+        for (let i = 0; i < numPlayers - numSpecialRoles; i++) {
+          rolesToAssign.push(ROLES.WARGA);
+        }
+
+        // Shuffle roles
+        for (let i = rolesToAssign.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [rolesToAssign[i], rolesToAssign[j]] = [rolesToAssign[j], rolesToAssign[i]];
+        }
+
+        return players.map((player, index) => ({
+          ...player,
+          role: rolesToAssign[index] || ROLES.WARGA, // Fallback, should not happen if logic is correct
+        }));
+      }
+
+      function generateNarrativeForHost(roomCode, playersWithRoles) {
+        const playerNames = playersWithRoles.map((p) => `${p.name} (${p.role})`).join(", ");
+        return `
+NARASI PERMAINAN UNTUK HOST
+
+Room Code: ${roomCode}
+Pemain & Peran (HANYA UNTUK HOST): ${playerNames}
+
+---
+PERSIAPAN SEBELUM MULAI:
+Pastikan semua pemain sudah bergabung dan siap.
+Jelaskan aturan dasar jika ada pemain baru.
+
+---
+MEMULAI PERMAINAN:
+
+KAMU (HOST): "Permainan dimulai! Malam pertama telah tiba di desa kita. Semua warga, silakan tutup mata dan tidur nyenyak."
+(Pastikan semua pemain menutup mata atau menunduk)
+
+KAMU (HOST): "Para Werewolf, silakan buka mata kalian. Kenali teman werewolf kalian. Kalian punya waktu sejenak untuk berdiskusi tanpa suara dan memilih satu korban malam ini."
+(Beri waktu Werewolf untuk memilih. Mereka bisa menunjuk satu sama lain atau memberi isyarat.)
+(Setelah Werewolf sepakat)
+KAMU (HOST): "Werewolf, silakan tutup mata kalian kembali."
+
+${
+  playersWithRoles.some((p) => p.role === ROLES.GUARDIAN)
+    ? `
+KAMU (HOST): "Guardian (Pelindung), silakan buka matamu. Malam ini, siapa yang ingin kamu lindungi dari serangan werewolf? Tunjuk satu orang."
+(Guardian menunjuk satu orang. Catat pilihan Guardian.)
+KAMU (HOST): "Guardian, silakan tutup matamu kembali."
+`
+    : ""
+}
+
+${
+  playersWithRoles.some((p) => p.role === ROLES.SEER)
+    ? `
+KAMU (HOST): "Seer (Dukun), silakan buka matamu. Siapa satu orang yang ingin kamu ketahui perannya malam ini? Tunjuk satu orang."
+(Seer menunjuk satu orang. Kamu sebagai host akan menunjukkan peran orang tersebut kepada Seer secara diam-diam - misalnya dengan gestur jempol ke atas untuk Werewolf, jempol ke bawah untuk Warga Baik).
+KAMU (HOST): "Seer, silakan tutup matamu kembali."
+`
+    : ""
+}
+
+KAMU (HOST): "Pagi telah tiba! Semua warga, silakan buka mata kalian."
+
+KAMU (HOST): (Umumkan hasil malam pertama berdasarkan aksi Werewolf & Guardian)
+"Malam tadi..."
+- Jika ada yang dimakan werewolf DAN TIDAK dilindungi Guardian: "Sayangnya, [Nama Pemain yang Dimakan] telah menjadi korban serangan werewolf." Pemain tersebut keluar dari permainan.
+- Jika yang dimakan werewolf DILINDUNGI Guardian: "Malam tadi adalah malam yang aman, tidak ada korban jiwa."
+- Jika werewolf tidak memilih korban / Guardian melindungi dirinya sendiri dan dia targetnya: "Malam tadi adalah malam yang aman, tidak ada korban jiwa."
+
+KAMU (HOST): "Sekarang adalah waktunya berdiskusi. Siapa yang kalian curigai sebagai werewolf? Setelah berdiskusi, kita akan melakukan voting untuk mengeliminasi satu orang dari desa."
+
+---
+Selanjutnya, pandu sesi diskusi dan voting. Ulangi siklus malam dan siang sesuai aturan permainan Werewolf yang Anda gunakan.
+            `.trim();
+      }
+
+      function listenToRoomChanges(roomId) {
+        if (roomUnsubscribe) {
+          roomUnsubscribe(); // Stop listening to previous room if any
+        }
+        const roomDocRef = doc(db, roomsCollectionPath, roomId);
+        roomUnsubscribe = onSnapshot(
+          roomDocRef,
+          (docSnap) => {
+            if (!docSnap.exists()) {
+              displayError("Room tidak lagi tersedia atau telah dihapus.");
+              if (roomUnsubscribe) roomUnsubscribe();
+              showView("home");
+              return;
+            }
+
+            const roomData = docSnap.data();
+            currentRoomId = docSnap.id; // Update in case of re-join
+
+            // Host view updates
+            if (currentUser && roomData.hostId === currentUser.uid && views.createRoom.classList.contains("hidden") === false) {
+              playerCountDisplay.textContent = roomData.players.length;
+              if (roomData.players.length > 0) {
+                playerListHost.innerHTML = roomData.players.map((p) => `<div class="bg-gray-600 p-2 rounded-md text-sm">${p.name}</div>`).join("");
+              } else {
+                playerListHost.innerHTML = '<p class="text-gray-400 italic">Belum ada pemain yang bergabung.</p>';
+              }
+              startGameBtn.disabled = roomData.players.length < MIN_PLAYERS;
+              startGameBtn.textContent = roomData.players.length < MIN_PLAYERS ? `Mulai Permainan (Min. ${MIN_PLAYERS} Pemain)` : "Mulai Permainan";
+            }
+
+            // Handle game state changes
+            if (roomData.status === "started") {
+              if (currentUser && roomData.hostId === currentUser.uid) {
+                hostNarrativeContent.textContent = roomData.narrative;
+                showView("hostNarrative");
+              } else {
+                // Player's view
+                const myPlayerData = roomData.players.find((p) => p.userId === currentUser.uid);
+                if (myPlayerData && myPlayerData.role) {
+                  currentRole = myPlayerData.role;
+                  playerRoleDisplay.textContent = currentRole;
+                  roleDescription.textContent = ROLE_DESCRIPTIONS[currentRole] || "Deskripsi peran tidak tersedia.";
+                  // Add specific styling/icons per role if desired
+                  playerRoleDisplay.className = "text-5xl font-bold p-6 bg-gray-700 rounded-lg shadow-inner ";
+                  if (currentRole === ROLES.WEREWOLF) playerRoleDisplay.classList.add("text-red-400");
+                  else if (currentRole === ROLES.SEER) playerRoleDisplay.classList.add("text-blue-400");
+                  else if (currentRole === ROLES.GUARDIAN) playerRoleDisplay.classList.add("text-green-400");
+                  else playerRoleDisplay.classList.add("text-yellow-400"); // Warga
+
+                  showView("playerRole");
+                } else if (views.waiting.classList.contains("hidden") === false) {
+                  // Still waiting for role, or not part of this game somehow
+                  console.log("Game started, but player data/role not found for current user or role is null.");
+                }
+              }
+            } else if (roomData.status === "waiting") {
+              // If player is on waiting screen and host starts, this will be handled by "started"
+              // If host is on createRoom screen, player list is updated
+            }
+          },
+          (error) => {
+            console.error("Error listening to room changes:", error);
+            displayError(`Error koneksi ke room: ${error.message}`);
+            if (roomUnsubscribe) roomUnsubscribe();
+            showView("home");
+          }
+        );
+      }
+
+      // --- Initial Load ---
+      showView("home"); // Start at home view
+    </script>
+  </body>
+</html>
