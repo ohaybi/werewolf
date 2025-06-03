@@ -162,6 +162,7 @@
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
       import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
       import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, arrayUnion, collection, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-analytics.js";
 
       // --- Firebase Configuration ---
       // These variables will be replaced by the Canvas environment.
@@ -169,12 +170,6 @@
       const firebaseConfigFromEnv = typeof __firebase_config !== "undefined" ? __firebase_config : null;
       const appIdFromEnv = typeof __app_id !== "undefined" ? __app_id : "default-werewolf-app";
       const initialAuthTokenFromEnv = typeof __initial_auth_token !== "undefined" ? __initial_auth_token : null;
-
-      if (!firebaseConfigFromEnv) {
-        console.error("Firebase config is not available. App will not work.");
-        displayError("Konfigurasi Firebase tidak ditemukan. Aplikasi tidak dapat berjalan.");
-        // You might want to disable UI elements or show a persistent error message here
-      }
 
       // const firebaseConfig = JSON.parse(firebaseConfigFromEnv);
 
@@ -193,11 +188,17 @@
       // Initialize Firebase
       const app = initializeApp(firebaseConfig);
       const analytics = getAnalytics(app);
-      const appId = firebaseConfig(appId);
+      const appId = "1:845189959292:web:607f3de5a1727e6f1383f9";
 
       // Initialize Firebase
       const auth = getAuth(app);
       const db = getFirestore(app);
+
+      if (!firebaseConfigFromEnv) {
+        console.error("Firebase config is not available. App will not work.");
+        displayError("Konfigurasi Firebase tidak ditemukan. Aplikasi tidak dapat berjalan.");
+        // You might want to disable UI elements or show a persistent error message here
+      }
 
       // --- Global State & Constants ---
       let currentUser = null;
