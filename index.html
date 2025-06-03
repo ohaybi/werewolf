@@ -162,7 +162,6 @@
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
       import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
       import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, arrayUnion, collection, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-      import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-analytics.js";
 
       // --- Firebase Configuration ---
       // These variables will be replaced by the Canvas environment.
@@ -187,7 +186,6 @@
 
       // Initialize Firebase
       const app = initializeApp(firebaseConfig);
-      const analytics = getAnalytics(app);
       const appId = "1:845189959292:web:607f3de5a1727e6f1383f9";
 
       // Initialize Firebase
