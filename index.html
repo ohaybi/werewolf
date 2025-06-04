@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Werewolf: Pembagian Peran (Update)</title>
+    <title>Werewolf: Pembagian Peran (Final)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <style>
@@ -18,38 +18,16 @@
         animation: toast-fade-in-out 3s forwards;
       }
       @keyframes toast-fade-in-out {
-        0% {
-          opacity: 0;
-          transform: translateY(20px);
-        }
-        10% {
-          opacity: 1;
-          transform: translateY(0);
-        }
-        90% {
-          opacity: 1;
-          transform: translateY(0);
-        }
-        100% {
-          opacity: 0;
-          transform: translateY(20px);
-        }
+        0% { opacity: 0; transform: translateY(20px); }
+        10% { opacity: 1; transform: translateY(0); }
+        90% { opacity: 1; transform: translateY(0); }
+        100% { opacity: 0; transform: translateY(20px); }
       }
-      .player-list::-webkit-scrollbar {
-        width: 8px;
-      }
-      .player-list::-webkit-scrollbar-track {
-        background: #4a5568;
-        border-radius: 10px;
-      } /* Adjusted for dark theme */
-      .player-list::-webkit-scrollbar-thumb {
-        background: #718096;
-        border-radius: 10px;
-      } /* Adjusted for dark theme */
-      .player-list::-webkit-scrollbar-thumb:hover {
-        background: #a0aec0;
-      } /* Adjusted for dark theme */
-
+      .player-list::-webkit-scrollbar { width: 8px; }
+      .player-list::-webkit-scrollbar-track { background: #4A5568; border-radius: 10px; }
+      .player-list::-webkit-scrollbar-thumb { background: #718096; border-radius: 10px; }
+      .player-list::-webkit-scrollbar-thumb:hover { background: #A0AEC0; }
+      
       .role-input-container input[type="number"] {
         -moz-appearance: textfield;
       }
@@ -59,25 +37,26 @@
         margin: 0;
       }
       .role-illustration {
-        width: 100px;
-        height: 100px;
+        width: 120px; /* Increased size for better image display */
+        height: 120px; /* Increased size for better image display */
         margin: 0 auto 1rem;
-        border: 2px solid #4a5568; /* Adjusted for dark theme */
+        border: 2px solid #4A5568;
         border-radius: 0.5rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: #2d3748; /* Adjusted for dark theme */
+        background-color: #2D3748;
+        overflow: hidden; /* Ensure image stays within bounds */
       }
       .role-illustration img {
-        width: 60%;
-        height: 60%;
+        width: 100%; /* Make image fill the container */
+        height: 100%; /* Make image fill the container */
+        object-fit: cover; /* Cover the area, might crop */
       }
     </style>
   </head>
   <body class="bg-gray-900 text-white flex items-center justify-center min-h-screen p-4">
     <div id="app-container" class="w-full max-w-lg">
-      {/* Increased max-width for more content */}
 
       <!-- Home View -->
       <div id="home-view" class="space-y-6">
@@ -94,16 +73,13 @@
         <div>
           <label class="block text-sm font-medium text-gray-300 mb-1">Kode Room:</label>
           <div class="flex items-center space-x-2">
-            <input type="text" id="room-code-display" readonly class="w-full bg-gray-700 text-white p-3 rounded-lg text-xl font-mono tracking-widest text-center border border-gray-600" />
+            <input type="text" id="room-code-display" readonly class="w-full bg-gray-700 text-white p-3 rounded-lg text-xl font-mono tracking-widest text-center border border-gray-600">
             <button id="copy-room-code-btn" class="bg-gray-600 hover:bg-gray-500 text-white p-3 rounded-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-              </svg>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
             </button>
           </div>
         </div>
 
-        <!-- Role Configuration (Moderator Only) -->
         <div id="role-config-section" class="space-y-4 hidden">
           <h3 class="text-xl font-semibold text-gray-200">Pengaturan Peran:</h3>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 role-input-container">
@@ -111,7 +87,7 @@
               <label for="werewolf-count" class="block text-sm font-medium text-gray-400">Werewolf (min 1):</label>
               <div class="flex items-center mt-1">
                 <button data-role="werewolf" data-op="minus" class="role-adjust-btn bg-red-600 hover:bg-red-700 px-3 py-1 rounded-l-md">-</button>
-                <input type="number" id="werewolf-count" value="1" min="1" class="w-full text-center bg-gray-700 border-gray-600 p-2" />
+                <input type="number" id="werewolf-count" value="1" min="1" class="w-full text-center bg-gray-700 border-gray-600 p-2">
                 <button data-role="werewolf" data-op="plus" class="role-adjust-btn bg-green-600 hover:bg-green-700 px-3 py-1 rounded-r-md">+</button>
               </div>
             </div>
@@ -119,7 +95,7 @@
               <label for="cenayang-count" class="block text-sm font-medium text-gray-400">Cenayang (min 0):</label>
               <div class="flex items-center mt-1">
                 <button data-role="cenayang" data-op="minus" class="role-adjust-btn bg-red-600 hover:bg-red-700 px-3 py-1 rounded-l-md">-</button>
-                <input type="number" id="cenayang-count" value="1" min="0" class="w-full text-center bg-gray-700 border-gray-600 p-2" />
+                <input type="number" id="cenayang-count" value="1" min="0" class="w-full text-center bg-gray-700 border-gray-600 p-2">
                 <button data-role="cenayang" data-op="plus" class="role-adjust-btn bg-green-600 hover:bg-green-700 px-3 py-1 rounded-r-md">+</button>
               </div>
             </div>
@@ -127,22 +103,21 @@
               <label for="guardian-count" class="block text-sm font-medium text-gray-400">Guardian (min 0):</label>
               <div class="flex items-center mt-1">
                 <button data-role="guardian" data-op="minus" class="role-adjust-btn bg-red-600 hover:bg-red-700 px-3 py-1 rounded-l-md">-</button>
-                <input type="number" id="guardian-count" value="1" min="0" class="w-full text-center bg-gray-700 border-gray-600 p-2" />
+                <input type="number" id="guardian-count" value="1" min="0" class="w-full text-center bg-gray-700 border-gray-600 p-2">
                 <button data-role="guardian" data-op="plus" class="role-adjust-btn bg-green-600 hover:bg-green-700 px-3 py-1 rounded-r-md">+</button>
               </div>
             </div>
           </div>
-          <p class="text-sm text-gray-400">Jumlah Warga Biasa: <span id="warga-count-display" class="font-semibold">0</span> (otomatis)</p>
-          <p id="role-config-warning" class="text-sm text-red-400 hidden"></p>
+          <p class="text-sm text-gray-400">Jumlah Warga: <span id="warga-count-display" class="font-semibold">0</span> (otomatis)</p>
+           <p id="role-config-warning" class="text-sm text-red-400 hidden"></p>
         </div>
-
-        <!-- Player Read-only Role Info -->
+        
         <div id="player-role-info-lobby" class="space-y-2 hidden text-sm text-gray-300">
-          <h3 class="text-xl font-semibold text-gray-200">Konfigurasi Peran:</h3>
-          <p>Werewolf: <span id="lobby-werewolf-display">1</span></p>
-          <p>Cenayang: <span id="lobby-cenayang-display">1</span></p>
-          <p>Guardian: <span id="lobby-guardian-display">1</span></p>
-          <p>Warga Biasa: <span id="lobby-warga-display">0</span></p>
+             <h3 class="text-xl font-semibold text-gray-200">Konfigurasi Peran:</h3>
+            <p>Werewolf: <span id="lobby-werewolf-display">1</span></p>
+            <p>Cenayang: <span id="lobby-cenayang-display">1</span></p>
+            <p>Guardian: <span id="lobby-guardian-display">1</span></p>
+            <p>Warga: <span id="lobby-warga-display">0</span></p>
         </div>
 
         <div>
@@ -151,12 +126,10 @@
             <p class="text-gray-400 italic">Belum ada pemain yang bergabung.</p>
           </div>
         </div>
-
+        
         <p id="player-waiting-message" class="text-center text-yellow-400 hidden">Menunggu moderator memulai permainan...</p>
 
-        <button id="start-game-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-150 ease-in-out disabled:bg-gray-500 disabled:cursor-not-allowed hidden">
-          Mulai Permainan
-        </button>
+        <button id="start-game-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-150 ease-in-out disabled:bg-gray-500 disabled:cursor-not-allowed hidden">Mulai Permainan</button>
         <button id="back-to-home-lobby-btn" class="w-full bg-gray-600 hover:bg-gray-500 text-white py-2 px-4 rounded-lg transition duration-150 ease-in-out">Keluar Room & Kembali</button>
       </div>
 
@@ -169,23 +142,17 @@
         </div>
         <div>
           <label for="room-code-input" class="block text-sm font-medium text-gray-300 mb-1">Kode Room:</label>
-          <input
-            type="text"
-            id="room-code-input"
-            placeholder="Masukkan kode room (6 karakter)"
-            maxlength="6"
-            class="w-full bg-gray-700 text-white p-3 rounded-lg uppercase font-mono tracking-widest border border-gray-600 focus:ring-blue-500 focus:border-blue-500"
-          />
+          <input type="text" id="room-code-input" placeholder="Masukkan kode room (6 karakter)" maxlength="6" class="w-full bg-gray-700 text-white p-3 rounded-lg uppercase font-mono tracking-widest border border-gray-600 focus:ring-blue-500 focus:border-blue-500"/>
         </div>
         <button id="submit-join-room-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-150 ease-in-out">Gabung</button>
         <button id="back-to-home-player-btn" class="w-full bg-gray-600 hover:bg-gray-500 text-white py-2 px-4 rounded-lg transition duration-150 ease-in-out">Kembali</button>
       </div>
-
+      
       <!-- Player Role View -->
       <div id="player-role-view" class="hidden text-center space-y-4 p-6 bg-gray-800 rounded-xl shadow-2xl">
         <h2 class="text-2xl font-semibold text-gray-200">Peran Kamu Adalah:</h2>
         <div id="role-illustration-placeholder" class="role-illustration">
-          <!-- SVG Illustration will be injected here -->
+          <!-- Image will be injected here -->
         </div>
         <div id="player-role-display" class="text-4xl font-bold p-4 bg-gray-700 rounded-lg shadow-inner">
           <!-- Role name will be injected here -->
@@ -197,12 +164,12 @@
       <!-- Moderator Narrative View -->
       <div id="moderator-narrative-view" class="hidden space-y-4 p-6 bg-gray-800 rounded-xl shadow-2xl">
         <h2 class="text-3xl font-bold text-center text-purple-400">Panduan Narasi Moderator</h2>
-
+        
         <div id="moderator-player-roles-info" class="bg-gray-700 p-4 rounded-lg mb-4">
-          <h3 class="text-xl font-semibold text-gray-200 mb-2">Daftar Pemain & Peran:</h3>
-          <div id="player-roles-list-moderator" class="player-list max-h-32 overflow-y-auto space-y-1 text-sm">
-            <!-- Player roles will be injected here -->
-          </div>
+            <h3 class="text-xl font-semibold text-gray-200 mb-2">Daftar Pemain & Peran:</h3>
+            <div id="player-roles-list-moderator" class="player-list max-h-32 overflow-y-auto space-y-1 text-sm">
+                <!-- Player roles will be injected here -->
+            </div>
         </div>
 
         <div id="moderator-narrative-content" class="text-left text-gray-200 bg-gray-700 p-4 rounded-lg max-h-80 overflow-y-auto whitespace-pre-wrap leading-relaxed player-list">
@@ -229,22 +196,22 @@
       // Firebase imports
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
       import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
-      import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, arrayUnion, collection, runTransaction, serverTimestamp, writeBatch } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+      import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, arrayUnion, collection, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js"; // Removed writeBatch as it's not used
 
       // --- Firebase Configuration ---
       const firebaseConfig = {
         apiKey: "AIzaSyB0v-WoOBPwGGz3PiFXxb-UW__3zVkA1n4", // Ganti dengan milik Anda
-        authDomain: "testingwerewolf.firebaseapp.com", // Ganti dengan milik Anda
-        projectId: "testingwerewolf", // Ganti dengan milik Anda
+        authDomain: "testingwerewolf.firebaseapp.com",   // Ganti dengan milik Anda
+        projectId: "testingwerewolf",                   // Ganti dengan milik Anda
         storageBucket: "testingwerewolf.firebasestorage.app", // Ganti dengan milik Anda
-        messagingSenderId: "328797346508", // Ganti dengan milik Anda
-        appId: "1:328797346508:web:d7005d4e156f86789b0069", // Ganti dengan milik Anda
+        messagingSenderId: "328797346508",              // Ganti dengan milik Anda
+        appId: "1:328797346508:web:d7005d4e156f86789b0069" // Ganti dengan milik Anda
       };
 
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
       const db = getFirestore(app);
-      const globalAppId = firebaseConfig.appId || "default-werewolf-app";
+      const globalAppId = firebaseConfig.appId || 'default-werewolf-app';
       const initialAuthTokenFromEnv = typeof __initial_auth_token !== "undefined" ? __initial_auth_token : null;
 
       // --- Global State & Constants ---
@@ -254,12 +221,12 @@
       let isModerator = false;
       let roomUnsubscribe = null;
 
-      const MIN_PLAYERS_OVERALL = 3; // Minimum players to start any game
+      const MIN_PLAYERS_OVERALL = 3;
       const ROLES = {
         WEREWOLF: "Werewolf",
-        CENAYANG: "Cenayang", // Seer
+        CENAYANG: "Cenayang",
         GUARDIAN: "Guardian",
-        WARGA: "Warga Biasa", // Villager
+        WARGA: "Warga" // Simplified from "Warga Biasa"
       };
       const ROLE_DESCRIPTIONS = {
         [ROLES.WEREWOLF]: "Setiap malam, kamu dan werewolf lain memilih satu pemain untuk dieliminasi.",
@@ -267,102 +234,102 @@
         [ROLES.GUARDIAN]: "Setiap malam, kamu bisa memilih satu pemain (termasuk dirimu) untuk dilindungi dari serangan werewolf.",
         [ROLES.WARGA]: "Kamu adalah warga biasa. Gunakan intuisimu untuk menemukan werewolf dan mengeliminasinya saat voting.",
       };
-      const ROLE_SVG_PLACEHOLDERS = {
-        [ROLES.WEREWOLF]: `<img src="img/werewolf.jpg" alt="werewolf>`,
-        [ROLES.CENAYANG]: `<img src="img/cenayang.jpg" alt="cenayang>`,
-        [ROLES.GUARDIAN]: `<img src="img/guardian.jpg" alt="guardian>`,
-        [ROLES.WARGA]: `<img src="img/warga.jpg" alt="warga>`,
+      // ROLE_IMAGE_PLACEHOLDERS: Pastikan path gambar benar dan folder 'img' ada di root proyek Anda di GitHub Pages.
+      // Contoh: jika file HTML Anda ada di root, dan gambar ada di folder 'img' di root, maka 'img/namafile.jpg' sudah benar.
+      const ROLE_IMAGE_PLACEHOLDERS = {
+        [ROLES.WEREWOLF]: `<img src="img/werewolf.jpg" alt="Ilustrasi Werewolf">`,
+        [ROLES.CENAYANG]: `<img src="img/cenayang.jpg" alt="Ilustrasi Cenayang">`,
+        [ROLES.GUARDIAN]: `<img src="img/guardian.jpg" alt="Ilustrasi Guardian">`,
+        [ROLES.WARGA]: `<img src="img/warga.jpg" alt="Ilustrasi Warga">`,
       };
 
       const roomsCollectionPath = `/artifacts/${globalAppId}/public/data/rooms`;
 
       // --- UI Elements ---
       const views = {
-        home: document.getElementById("home-view"),
-        lobby: document.getElementById("lobby-view"),
-        joinRoom: document.getElementById("join-room-view"),
-        playerRole: document.getElementById("player-role-view"),
-        moderatorNarrative: document.getElementById("moderator-narrative-view"),
+        home: document.getElementById('home-view'),
+        lobby: document.getElementById('lobby-view'),
+        joinRoom: document.getElementById('join-room-view'),
+        playerRole: document.getElementById('player-role-view'),
+        moderatorNarrative: document.getElementById('moderator-narrative-view'),
       };
-      const lobbyTitle = document.getElementById("lobby-title");
-      const createRoomBtn = document.getElementById("create-room-btn");
-      const joinRoomBtn = document.getElementById("join-room-btn");
-      const roomCodeDisplay = document.getElementById("room-code-display");
-      const copyRoomCodeBtn = document.getElementById("copy-room-code-btn");
-      const playerListLobby = document.getElementById("player-list-lobby");
-      const playerCountDisplay = document.getElementById("player-count");
-      const startGameBtn = document.getElementById("start-game-btn");
-      const backToHomeLobbyBtn = document.getElementById("back-to-home-lobby-btn");
+      const lobbyTitle = document.getElementById('lobby-title');
+      const createRoomBtn = document.getElementById('create-room-btn');
+      const joinRoomBtn = document.getElementById('join-room-btn');
+      const roomCodeDisplay = document.getElementById('room-code-display');
+      const copyRoomCodeBtn = document.getElementById('copy-room-code-btn');
+      const playerListLobby = document.getElementById('player-list-lobby');
+      const playerCountDisplay = document.getElementById('player-count');
+      const startGameBtn = document.getElementById('start-game-btn');
+      const backToHomeLobbyBtn = document.getElementById('back-to-home-lobby-btn');
+      
+      const roleConfigSection = document.getElementById('role-config-section');
+      const werewolfCountInput = document.getElementById('werewolf-count');
+      const cenayangCountInput = document.getElementById('cenayang-count');
+      const guardianCountInput = document.getElementById('guardian-count');
+      const wargaCountDisplay = document.getElementById('warga-count-display'); // For "Warga" count
+      const roleAdjustBtns = document.querySelectorAll('.role-adjust-btn');
+      const roleConfigWarning = document.getElementById('role-config-warning');
 
-      const roleConfigSection = document.getElementById("role-config-section");
-      const werewolfCountInput = document.getElementById("werewolf-count");
-      const cenayangCountInput = document.getElementById("cenayang-count");
-      const guardianCountInput = document.getElementById("guardian-count");
-      const wargaCountDisplay = document.getElementById("warga-count-display");
-      const roleAdjustBtns = document.querySelectorAll(".role-adjust-btn");
-      const roleConfigWarning = document.getElementById("role-config-warning");
+      const playerRoleInfoLobby = document.getElementById('player-role-info-lobby');
+      const lobbyWerewolfDisplay = document.getElementById('lobby-werewolf-display');
+      const lobbyCenayangDisplay = document.getElementById('lobby-cenayang-display');
+      const lobbyGuardianDisplay = document.getElementById('lobby-guardian-display');
+      const lobbyWargaDisplay = document.getElementById('lobby-warga-display'); // For "Warga"
+      const playerWaitingMessage = document.getElementById('player-waiting-message');
 
-      const playerRoleInfoLobby = document.getElementById("player-role-info-lobby");
-      const lobbyWerewolfDisplay = document.getElementById("lobby-werewolf-display");
-      const lobbyCenayangDisplay = document.getElementById("lobby-cenayang-display");
-      const lobbyGuardianDisplay = document.getElementById("lobby-guardian-display");
-      const lobbyWargaDisplay = document.getElementById("lobby-warga-display");
-      const playerWaitingMessage = document.getElementById("player-waiting-message");
+      const playerNameInput = document.getElementById('player-name-input');
+      const roomCodeInput = document.getElementById('room-code-input');
+      const submitJoinRoomBtn = document.getElementById('submit-join-room-btn');
+      const backToHomePlayerBtn = document.getElementById('back-to-home-player-btn');
+      
+      const playerRoleDisplay = document.getElementById('player-role-display');
+      const roleDescription = document.getElementById('role-description');
+      const roleIllustrationPlaceholder = document.getElementById('role-illustration-placeholder');
+      
+      const moderatorPlayerRolesInfo = document.getElementById('moderator-player-roles-info');
+      const playerRolesListModerator = document.getElementById('player-roles-list-moderator');
+      const moderatorNarrativeContent = document.getElementById('moderator-narrative-content');
+      const backToHomeFromNarrativeBtn = document.getElementById('back-to-home-from-narrative-btn');
+      const userIdDisplay = document.getElementById('user-id-display');
 
-      const playerNameInput = document.getElementById("player-name-input");
-      const roomCodeInput = document.getElementById("room-code-input");
-      const submitJoinRoomBtn = document.getElementById("submit-join-room-btn");
-      const backToHomePlayerBtn = document.getElementById("back-to-home-player-btn");
-
-      const playerRoleDisplay = document.getElementById("player-role-display");
-      const roleDescription = document.getElementById("role-description");
-      const roleIllustrationPlaceholder = document.getElementById("role-illustration-placeholder");
-
-      const moderatorPlayerRolesInfo = document.getElementById("moderator-player-roles-info");
-      const playerRolesListModerator = document.getElementById("player-roles-list-moderator");
-      const moderatorNarrativeContent = document.getElementById("moderator-narrative-content");
-      const backToHomeFromNarrativeBtn = document.getElementById("back-to-home-from-narrative-btn");
-      const userIdDisplay = document.getElementById("user-id-display");
-
-      const toastNotification = document.getElementById("toast-notification");
-      const toastMessage = document.getElementById("toast-message");
-      const errorModal = document.getElementById("error-modal");
-      const errorModalTitle = document.getElementById("error-modal-title");
-      const errorModalMessage = document.getElementById("error-modal-message");
-      const errorModalCloseBtn = document.getElementById("error-modal-close-btn");
+      const toastNotification = document.getElementById('toast-notification');
+      const toastMessage = document.getElementById('toast-message');
+      const errorModal = document.getElementById('error-modal');
+      const errorModalTitle = document.getElementById('error-modal-title');
+      const errorModalMessage = document.getElementById('error-modal-message');
+      const errorModalCloseBtn = document.getElementById('error-modal-close-btn');
 
       // --- Utility Functions ---
       function showView(viewId) {
-        Object.values(views).forEach((view) => view.classList.add("hidden"));
-        if (views[viewId]) views[viewId].classList.remove("hidden");
+        Object.values(views).forEach(view => view.classList.add('hidden'));
+        if (views[viewId]) views[viewId].classList.remove('hidden');
         else {
           console.error(`View with id ${viewId} not found.`);
-          views.home.classList.remove("hidden");
+          views.home.classList.remove('hidden');
         }
       }
 
-      function generateRoomCode() {
-        return Math.random().toString(36).substring(2, 8).toUpperCase();
-      }
+      function generateRoomCode() { return Math.random().toString(36).substring(2, 8).toUpperCase(); }
       function showToast(message) {
         toastMessage.textContent = message;
-        toastNotification.classList.remove("hidden");
-        setTimeout(() => toastNotification.classList.add("hidden"), 3000);
+        toastNotification.classList.remove('hidden');
+        setTimeout(() => toastNotification.classList.add('hidden'), 3000);
       }
       function displayError(message, title = "Error") {
         console.error("Error displayed:", title, message);
         if (errorModalTitle && errorModalMessage && errorModal) {
-          errorModalTitle.textContent = title;
-          errorModalMessage.textContent = message;
-          errorModal.classList.remove("hidden");
-          errorModal.classList.add("opacity-100");
+            errorModalTitle.textContent = title;
+            errorModalMessage.textContent = message;
+            errorModal.classList.remove('hidden');
+            errorModal.classList.add('opacity-100');
         } else {
-          console.error("Error modal elements not found.");
+            console.error("Error modal elements not found.");
         }
       }
-      errorModalCloseBtn.addEventListener("click", () => {
-        errorModal.classList.add("hidden");
-        errorModal.classList.remove("opacity-100");
+      errorModalCloseBtn.addEventListener('click', () => {
+        errorModal.classList.add('hidden');
+        errorModal.classList.remove('opacity-100');
       });
 
       // --- Firebase Authentication ---
@@ -396,31 +363,28 @@
       });
 
       // --- Room & Lobby Logic ---
-      createRoomBtn.addEventListener("click", async () => {
-        if (!currentUser) {
-          displayError("Anda harus login untuk membuat room.");
-          return;
-        }
+      createRoomBtn.addEventListener('click', async () => {
+        if (!currentUser) { displayError("Anda harus login untuk membuat room."); return; }
         isModerator = true;
         currentRoomId = generateRoomCode();
         const roomDocRef = doc(db, roomsCollectionPath, currentRoomId);
         const initialRoleConfig = {
-          configWerewolves: 1,
-          configCenayang: 1,
-          configGuardian: 1,
+            configWerewolves: 1,
+            configCenayang: 1,
+            configGuardian: 1,
         };
         try {
           await setDoc(roomDocRef, {
             moderatorId: currentUser.uid,
-            players: [{ userId: currentUser.uid, name: "Moderator", isModerator: true }], // Moderator joins as a non-playing entity or a player
+            players: [{ userId: currentUser.uid, name: "ModeratorPlaceholder", isModerator: true }], // Moderator data structure
             status: "lobby",
             ...initialRoleConfig,
-            createdAt: serverTimestamp(),
+            createdAt: serverTimestamp()
           });
           roomCodeDisplay.value = currentRoomId;
-          updateRoleInputsFromConfig(initialRoleConfig); // Set initial values on UI
+          updateRoleInputsFromConfig(initialRoleConfig);
           listenToRoomChanges(currentRoomId);
-          showView("lobby");
+          showView('lobby');
           showToast(`Room ${currentRoomId} berhasil dibuat!`);
         } catch (error) {
           console.error("Error creating room:", error);
@@ -428,102 +392,74 @@
         }
       });
 
-      joinRoomBtn.addEventListener("click", () => {
+      joinRoomBtn.addEventListener('click', () => {
         isModerator = false;
-        showView("joinRoom");
+        showView('joinRoom');
       });
 
-      submitJoinRoomBtn.addEventListener("click", async () => {
-        if (!currentUser) {
-          displayError("Anda harus login untuk bergabung.");
-          return;
-        }
+      submitJoinRoomBtn.addEventListener('click', async () => {
+        if (!currentUser) { displayError("Anda harus login untuk bergabung."); return; }
         const name = playerNameInput.value.trim();
         const code = roomCodeInput.value.trim().toUpperCase();
-        if (!name) {
-          displayError("Nama tidak boleh kosong.");
-          return;
-        }
-        if (!code || code.length !== 6) {
-          displayError("Kode room tidak valid.");
-          return;
-        }
+        if (!name) { displayError("Nama tidak boleh kosong."); return; }
+        if (!code || code.length !== 6) { displayError("Kode room tidak valid."); return; }
 
         currentPlayerName = name;
         currentRoomId = code;
         const roomDocRef = doc(db, roomsCollectionPath, currentRoomId);
         try {
           const roomSnap = await getDoc(roomDocRef);
-          if (!roomSnap.exists()) {
-            displayError(`Room ${currentRoomId} tidak ditemukan.`);
-            return;
-          }
+          if (!roomSnap.exists()) { displayError(`Room ${currentRoomId} tidak ditemukan.`); return; }
           const roomData = roomSnap.data();
-          if (roomData.status !== "lobby") {
-            displayError("Room ini sudah dimulai atau selesai.");
-            return;
-          }
+          if (roomData.status !== "lobby") { displayError("Room ini sudah dimulai atau selesai."); return; }
 
-          if (roomData.players.some((p) => p.userId === currentUser.uid)) {
-            showToast("Anda sudah bergabung di room ini.");
+          if (roomData.players.some(p => p.userId === currentUser.uid && !p.isModerator)) { // Ensure not re-adding if already a player
+            showToast("Anda sudah bergabung di room ini sebagai pemain.");
           } else {
             await updateDoc(roomDocRef, {
-              players: arrayUnion({ userId: currentUser.uid, name: currentPlayerName, role: null, isModerator: false }),
+              players: arrayUnion({ userId: currentUser.uid, name: currentPlayerName, role: null, isModerator: false })
             });
             showToast("Berhasil bergabung dengan room!");
           }
           listenToRoomChanges(currentRoomId);
-          showView("lobby");
+          showView('lobby');
         } catch (error) {
           console.error("Error joining room:", error);
           displayError(`Gagal bergabung room: ${error.message}`);
         }
       });
-
+      
       function updateRoleInputsFromConfig(config) {
         if (werewolfCountInput) werewolfCountInput.value = config.configWerewolves || 1;
-        if (cenayangCountInput) cenayangCountInput.value = config.configCenayang || 0;
-        if (guardianCountInput) guardianCountInput.value = config.configGuardian || 0;
+        if (cenayangCountInput) cenayangCountInput.value = config.configCenayang !== undefined ? config.configCenayang : 0; // Default to 0 if undefined
+        if (guardianCountInput) guardianCountInput.value = config.configGuardian !== undefined ? config.configGuardian : 0; // Default to 0 if undefined
       }
 
-      function updateLobbyPlayerRoleInfo(config, playerCount) {
-        const numWerewolves = parseInt(config.configWerewolves || 0);
-        const numCenayang = parseInt(config.configCenayang || 0);
-        const numGuardian = parseInt(config.configGuardian || 0);
-        const actualPlayerCount = playerCount - (isModerator ? 1 : 0); // Exclude moderator if they are in players list but not playing
-        const numWarga = Math.max(0, actualPlayerCount - (numWerewolves + numCenayang + numGuardian));
-
-        lobbyWerewolfDisplay.textContent = numWerewolves;
-        lobbyCenayangDisplay.textContent = numCenayang;
-        lobbyGuardianDisplay.textContent = numGuardian;
-        lobbyWargaDisplay.textContent = numWarga;
-      }
-
-      roleAdjustBtns.forEach((btn) => {
-        btn.addEventListener("click", async () => {
+      roleAdjustBtns.forEach(btn => {
+        btn.addEventListener('click', async () => {
           const role = btn.dataset.role;
           const op = btn.dataset.op;
           const input = document.getElementById(`${role}-count`);
           let currentValue = parseInt(input.value);
-          if (op === "plus") currentValue++;
-          else if (op === "minus") currentValue--;
-
-          if (role === "werewolf") input.value = Math.max(1, currentValue); // Min 1 werewolf
-          else input.value = Math.max(0, currentValue); // Min 0 for others
+          if (op === 'plus') currentValue++;
+          else if (op === 'minus') currentValue--;
+          
+          if (role === 'werewolf') input.value = Math.max(1, currentValue);
+          else input.value = Math.max(0, currentValue);
 
           await updateRoleConfigInFirebase();
         });
       });
-
-      [werewolfCountInput, cenayangCountInput, guardianCountInput].forEach((input) => {
-        if (input)
-          input.addEventListener("change", async (e) => {
-            if (e.target.id === "werewolf-count" && parseInt(e.target.value) < 1) {
-              e.target.value = 1; // Enforce min 1 werewolf
+      
+      [werewolfCountInput, cenayangCountInput, guardianCountInput].forEach(input => {
+        if(input) input.addEventListener('change', async (e) => {
+            if (e.target.id === 'werewolf-count' && parseInt(e.target.value) < 1) {
+                e.target.value = 1;
+            } else if (parseInt(e.target.value) < 0) { // For cenayang and guardian
+                 e.target.value = 0;
             }
-            if (parseInt(e.target.value) < 0) e.target.value = 0; // Enforce min 0 for others
             await updateRoleConfigInFirebase();
-          });
+        });
       });
 
       async function updateRoleConfigInFirebase() {
@@ -536,156 +472,140 @@
         const roomDocRef = doc(db, roomsCollectionPath, currentRoomId);
         try {
           await updateDoc(roomDocRef, newConfig);
-          // No toast needed, UI updates via onSnapshot
         } catch (error) {
           console.error("Error updating role config:", error);
           displayError("Gagal menyimpan konfigurasi peran.");
         }
       }
-
+      
       function validateRoleConfiguration(players, config) {
-        const playerCount = players.filter((p) => !p.isModerator).length; // Count only actual players
+        const actualPlayers = players.filter(p => !p.isModerator); // Players who will get roles
+        const playerCount = actualPlayers.length;
         const numWerewolves = parseInt(config.configWerewolves || 0);
         const numCenayang = parseInt(config.configCenayang || 0);
         const numGuardian = parseInt(config.configGuardian || 0);
         const totalSpecialRoles = numWerewolves + numCenayang + numGuardian;
 
-        roleConfigWarning.classList.add("hidden");
-        roleConfigWarning.textContent = "";
+        roleConfigWarning.classList.add('hidden');
+        roleConfigWarning.textContent = '';
 
         if (playerCount < MIN_PLAYERS_OVERALL) {
-          startGameBtn.disabled = true;
-          startGameBtn.textContent = `Mulai (Min ${MIN_PLAYERS_OVERALL} Pemain)`;
-          return false;
+            startGameBtn.disabled = true;
+            startGameBtn.textContent = `Mulai (Min ${MIN_PLAYERS_OVERALL} Pemain)`;
+            return false;
         }
-        if (numWerewolves < 1 && playerCount > 0) {
-          startGameBtn.disabled = true;
-          roleConfigWarning.textContent = "Jumlah Werewolf minimal 1.";
-          roleConfigWarning.classList.remove("hidden");
-          return false;
+        if (numWerewolves < 1 && playerCount > 0) { // Ensure at least one werewolf if there are players
+            startGameBtn.disabled = true;
+            roleConfigWarning.textContent = "Jumlah Werewolf minimal 1.";
+            roleConfigWarning.classList.remove('hidden');
+            return false;
         }
         if (totalSpecialRoles > playerCount) {
-          startGameBtn.disabled = true;
-          roleConfigWarning.textContent = "Jumlah peran spesial melebihi jumlah pemain.";
-          roleConfigWarning.classList.remove("hidden");
-          return false;
+            startGameBtn.disabled = true;
+            roleConfigWarning.textContent = "Jumlah peran spesial melebihi jumlah pemain.";
+            roleConfigWarning.classList.remove('hidden');
+            return false;
         }
-
+        
         startGameBtn.disabled = false;
-        startGameBtn.textContent = "Mulai Permainan";
+        startGameBtn.textContent = 'Mulai Permainan';
         return true;
       }
 
       function listenToRoomChanges(roomId) {
         if (roomUnsubscribe) roomUnsubscribe();
         const roomDocRef = doc(db, roomsCollectionPath, roomId);
-        roomUnsubscribe = onSnapshot(
-          roomDocRef,
-          (docSnap) => {
-            if (!docSnap.exists()) {
-              displayError("Room tidak lagi tersedia atau telah dihapus.");
-              if (roomUnsubscribe) roomUnsubscribe();
-              showView("home");
-              return;
-            }
-            const roomData = docSnap.data();
-            currentRoomId = docSnap.id;
-            roomCodeDisplay.value = currentRoomId; // Keep room code display updated
-
-            // Update player list in lobby
-            const actualPlayers = roomData.players.filter((p) => !p.isModerator || (p.isModerator && p.userId !== roomData.moderatorId)); // Filter out the non-playing moderator
-            playerCountDisplay.textContent = actualPlayers.length;
-
-            let playerListHtml = actualPlayers.length > 0 ? "" : '<p class="text-gray-400 italic">Belum ada pemain yang bergabung.</p>';
-
-            // Put current player at the top if they are in the list
-            const currentPlayerInList = actualPlayers.find((p) => p.userId === currentUser?.uid);
-            if (currentPlayerInList) {
-              playerListHtml += `<div class="bg-purple-600 p-2 rounded-md text-sm font-semibold">${currentPlayerInList.name} (Kamu)</div>`;
-            }
-            actualPlayers.forEach((p) => {
-              if (p.userId !== currentUser?.uid) {
-                // Don't add current player again
-                playerListHtml += `<div class="bg-gray-600 p-2 rounded-md text-sm">${p.name}</div>`;
-              }
-            });
-            playerListLobby.innerHTML = playerListHtml;
-
-            // Update role configuration display for moderator and player
-            const currentConfig = {
-              configWerewolves: roomData.configWerewolves,
-              configCenayang: roomData.configCenayang,
-              configGuardian: roomData.configGuardian,
-            };
-
-            const numWarga = Math.max(0, actualPlayers.length - ((parseInt(currentConfig.configWerewolves) || 0) + (parseInt(currentConfig.configCenayang) || 0) + (parseInt(currentConfig.configGuardian) || 0)));
-
-            if (isModerator) {
-              lobbyTitle.textContent = "Lobby Moderator";
-              roleConfigSection.classList.remove("hidden");
-              playerRoleInfoLobby.classList.add("hidden");
-              startGameBtn.classList.remove("hidden");
-              playerWaitingMessage.classList.add("hidden");
-              updateRoleInputsFromConfig(currentConfig);
-              wargaCountDisplay.textContent = numWarga;
-              validateRoleConfiguration(roomData.players, currentConfig);
-            } else {
-              // Player view
-              lobbyTitle.textContent = "Lobby Pemain";
-              roleConfigSection.classList.add("hidden");
-              playerRoleInfoLobby.classList.remove("hidden");
-              startGameBtn.classList.add("hidden");
-              playerWaitingMessage.classList.remove("hidden");
-              // Update read-only role info for player
-              lobbyWerewolfDisplay.textContent = currentConfig.configWerewolves || 0;
-              lobbyCenayangDisplay.textContent = currentConfig.configCenayang || 0;
-              lobbyGuardianDisplay.textContent = currentConfig.configGuardian || 0;
-              lobbyWargaDisplay.textContent = numWarga;
-            }
-
-            // Handle game state changes
-            if (roomData.status === "started") {
-              if (isModerator) {
-                moderatorNarrativeContent.textContent = roomData.narrative || "Narasi belum dibuat.";
-                // Display player roles for moderator
-                let rolesHtml = roomData.players
-                  .filter((p) => !p.isModerator)
-                  .map((p) => `<div class="text-gray-300">${p.name}: <span class="font-semibold text-yellow-400">${p.role || "Belum ada peran"}</span></div>`)
-                  .join("");
-                playerRolesListModerator.innerHTML = rolesHtml || '<p class="text-gray-400 italic">Belum ada pemain.</p>';
-                showView("moderatorNarrative");
-              } else {
-                // Player's role view
-                const myPlayerData = roomData.players.find((p) => p.userId === currentUser.uid);
-                if (myPlayerData && myPlayerData.role) {
-                  playerRoleDisplay.textContent = myPlayerData.role;
-                  roleDescription.textContent = ROLE_DESCRIPTIONS[myPlayerData.role] || "Deskripsi peran tidak tersedia.";
-                  roleIllustrationPlaceholder.innerHTML = ROLE_SVG_PLACEHOLDERS[myPlayerData.role] || '<p class="text-sm text-gray-500">No Ilustration</p>';
-                  // Styling based on role
-                  playerRoleDisplay.className = "text-4xl font-bold p-4 bg-gray-700 rounded-lg shadow-inner"; // Reset
-                  if (myPlayerData.role === ROLES.WEREWOLF) playerRoleDisplay.classList.add("text-red-400");
-                  else if (myPlayerData.role === ROLES.CENAYANG) playerRoleDisplay.classList.add("text-blue-400");
-                  else if (myPlayerData.role === ROLES.GUARDIAN) playerRoleDisplay.classList.add("text-green-400");
-                  else playerRoleDisplay.classList.add("text-yellow-400"); // Warga
-                  showView("playerRole");
-                }
-              }
-            }
-          },
-          (error) => {
-            console.error("Error listening to room changes:", error);
-            displayError(`Error koneksi ke room: ${error.message}`);
+        roomUnsubscribe = onSnapshot(roomDocRef, (docSnap) => {
+          if (!docSnap.exists()) {
+            displayError("Room tidak lagi tersedia atau telah dihapus.");
             if (roomUnsubscribe) roomUnsubscribe();
-            showView("home");
+            showView('home'); return;
           }
-        );
-      }
+          const roomData = docSnap.data();
+          currentRoomId = docSnap.id;
+          roomCodeDisplay.value = currentRoomId;
 
-      startGameBtn.addEventListener("click", async () => {
-        if (!isModerator || !currentUser || !currentRoomId) {
-          displayError("Kondisi tidak valid untuk memulai.");
-          return;
-        }
+          const allPlayersInRoom = roomData.players || [];
+          const moderatorEntry = allPlayersInRoom.find(p => p.isModerator && p.userId === roomData.moderatorId);
+          const actualPlayersForList = allPlayersInRoom.filter(p => !p.isModerator); // Players for list and role assignment
+
+          playerCountDisplay.textContent = actualPlayersForList.length;
+          
+          let playerListHtml = actualPlayersForList.length > 0 ? '' : '<p class="text-gray-400 italic">Belum ada pemain yang bergabung.</p>';
+          
+          const currentPlayerInList = actualPlayersForList.find(p => p.userId === currentUser?.uid);
+          if (currentPlayerInList) {
+            playerListHtml += `<div class="bg-purple-600 p-2 rounded-md text-sm font-semibold">${currentPlayerInList.name} (Kamu)</div>`;
+          }
+          actualPlayersForList.forEach(p => {
+            if (p.userId !== currentUser?.uid) {
+                 playerListHtml += `<div class="bg-gray-600 p-2 rounded-md text-sm">${p.name}</div>`;
+            }
+          });
+          playerListLobby.innerHTML = playerListHtml;
+
+          const currentConfig = {
+            configWerewolves: roomData.configWerewolves,
+            configCenayang: roomData.configCenayang,
+            configGuardian: roomData.configGuardian,
+          };
+          
+          const numWarga = Math.max(0, actualPlayersForList.length - ( (parseInt(currentConfig.configWerewolves) || 0) + (parseInt(currentConfig.configCenayang) || 0) + (parseInt(currentConfig.configGuardian) || 0) ));
+          
+          if (isModerator) {
+            lobbyTitle.textContent = "Lobby Moderator";
+            roleConfigSection.classList.remove('hidden');
+            playerRoleInfoLobby.classList.add('hidden');
+            startGameBtn.classList.remove('hidden');
+            playerWaitingMessage.classList.add('hidden');
+            updateRoleInputsFromConfig(currentConfig);
+            wargaCountDisplay.textContent = numWarga; // Display "Warga" count
+            validateRoleConfiguration(allPlayersInRoom, currentConfig); // Pass all players for validation logic
+          } else { 
+            lobbyTitle.textContent = "Lobby Pemain";
+            roleConfigSection.classList.add('hidden');
+            playerRoleInfoLobby.classList.remove('hidden');
+            startGameBtn.classList.add('hidden');
+            playerWaitingMessage.classList.remove('hidden');
+            lobbyWerewolfDisplay.textContent = currentConfig.configWerewolves || 0;
+            lobbyCenayangDisplay.textContent = currentConfig.configCenayang || 0;
+            lobbyGuardianDisplay.textContent = currentConfig.configGuardian || 0;
+            lobbyWargaDisplay.textContent = numWarga; // Display "Warga" count
+          }
+
+          if (roomData.status === "started") {
+            if (isModerator) {
+              moderatorNarrativeContent.textContent = roomData.narrative || "Narasi belum dibuat.";
+              let rolesHtml = actualPlayersForList.map(p => 
+                  `<div class="text-gray-300">${p.name}: <span class="font-semibold text-yellow-400">${p.role || 'Belum ada peran'}</span></div>`
+              ).join('');
+              playerRolesListModerator.innerHTML = rolesHtml || '<p class="text-gray-400 italic">Belum ada pemain.</p>';
+              showView('moderatorNarrative');
+            } else { 
+              const myPlayerData = actualPlayersForList.find(p => p.userId === currentUser.uid);
+              if (myPlayerData && myPlayerData.role) {
+                playerRoleDisplay.textContent = myPlayerData.role;
+                roleDescription.textContent = ROLE_DESCRIPTIONS[myPlayerData.role] || "Deskripsi peran tidak tersedia.";
+                roleIllustrationPlaceholder.innerHTML = ROLE_IMAGE_PLACEHOLDERS[myPlayerData.role] || '<p class="text-sm text-gray-500">Ilustrasi tidak tersedia</p>';
+                playerRoleDisplay.className = 'text-4xl font-bold p-4 bg-gray-700 rounded-lg shadow-inner'; 
+                if (myPlayerData.role === ROLES.WEREWOLF) playerRoleDisplay.classList.add('text-red-400');
+                else if (myPlayerData.role === ROLES.CENAYANG) playerRoleDisplay.classList.add('text-blue-400');
+                else if (myPlayerData.role === ROLES.GUARDIAN) playerRoleDisplay.classList.add('text-green-400');
+                else playerRoleDisplay.classList.add('text-yellow-400'); 
+                showView('playerRole');
+              }
+            }
+          }
+        }, (error) => {
+          console.error("Error listening to room changes:", error);
+          displayError(`Error koneksi ke room: ${error.message}`);
+          if (roomUnsubscribe) roomUnsubscribe();
+          showView('home');
+        });
+      }
+      
+      startGameBtn.addEventListener('click', async () => {
+        if (!isModerator || !currentUser || !currentRoomId) { displayError("Kondisi tidak valid untuk memulai."); return; }
         const roomDocRef = doc(db, roomsCollectionPath, currentRoomId);
         try {
           await runTransaction(db, async (transaction) => {
@@ -693,42 +613,40 @@
             if (!roomSnap.exists()) throw "Room tidak ditemukan!";
             const roomData = roomSnap.data();
             if (roomData.moderatorId !== currentUser.uid) throw "Hanya moderator yang bisa memulai.";
-
-            const playersToAssignRoles = roomData.players.filter((p) => !p.isModerator); // Exclude moderator from role assignment
+            
+            const playersForRoleAssignment = roomData.players.filter(p => !p.isModerator);
             const config = {
-              configWerewolves: roomData.configWerewolves,
-              configCenayang: roomData.configCenayang,
-              configGuardian: roomData.configGuardian,
+                configWerewolves: roomData.configWerewolves,
+                configCenayang: roomData.configCenayang,
+                configGuardian: roomData.configGuardian,
             };
 
             if (!validateRoleConfiguration(roomData.players, config)) {
-              // Re-validate before starting
-              throw "Konfigurasi peran tidak valid atau jumlah pemain kurang.";
+                throw "Konfigurasi peran tidak valid atau jumlah pemain kurang.";
             }
 
-            const { assignedPlayers, narrative } = assignRolesAndGenerateNarrative(playersToAssignRoles, config, currentRoomId);
-
-            // Update roles for actual players, keep moderator as is
-            const finalPlayersList = roomData.players.map((p) => {
-              if (p.isModerator) return p; // Keep moderator data
-              const assignedData = assignedPlayers.find((ap) => ap.userId === p.userId);
-              return assignedData || p; // Return assigned data or original if not found (should not happen)
+            const { assignedPlayersData, narrative } = assignRolesAndGenerateNarrative(playersForRoleAssignment, config, currentRoomId);
+            
+            const finalPlayersList = roomData.players.map(p => {
+                if (p.isModerator) return p;
+                const assignedData = assignedPlayersData.find(ap => ap.userId === p.userId);
+                return assignedData || p; 
             });
 
             transaction.update(roomDocRef, {
               players: finalPlayersList,
               status: "started",
-              narrative: narrative,
+              narrative: narrative
             });
           });
           showToast("Permainan dimulai!");
         } catch (error) {
           console.error("Error starting game:", error);
-          displayError(`Gagal memulai permainan: ${typeof error === "string" ? error : error.message}`);
+          displayError(`Gagal memulai permainan: ${typeof error === 'string' ? error : error.message}`);
         }
       });
 
-      function assignRolesAndGenerateNarrative(players, config, roomCode) {
+      function assignRolesAndGenerateNarrative(playersToAssign, config, roomCode) {
         let rolesToAssign = [];
         const numWerewolves = parseInt(config.configWerewolves);
         const numCenayang = parseInt(config.configCenayang);
@@ -737,29 +655,25 @@
         for (let i = 0; i < numWerewolves; i++) rolesToAssign.push(ROLES.WEREWOLF);
         for (let i = 0; i < numCenayang; i++) rolesToAssign.push(ROLES.CENAYANG);
         for (let i = 0; i < numGuardian; i++) rolesToAssign.push(ROLES.GUARDIAN);
-
+        
         const numSpecialRoles = rolesToAssign.length;
-        const numWarga = Math.max(0, players.length - numSpecialRoles);
+        const numWarga = Math.max(0, playersToAssign.length - numSpecialRoles);
         for (let i = 0; i < numWarga; i++) rolesToAssign.push(ROLES.WARGA);
 
-        // Shuffle roles
         for (let i = rolesToAssign.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
           [rolesToAssign[i], rolesToAssign[j]] = [rolesToAssign[j], rolesToAssign[i]];
         }
 
-        const assignedPlayers = players.map((player, index) => ({
+        const assignedPlayersData = playersToAssign.map((player, index) => ({
           ...player,
-          role: rolesToAssign[index] || ROLES.WARGA, // Fallback, should ensure rolesToAssign.length === players.length
+          role: rolesToAssign[index] || ROLES.WARGA 
         }));
-
-        // Generate Narrative
-        const playerRoleSummary = assignedPlayers.map((p) => `${p.name} (${p.role})`).join(", ");
+        
         const narrative = `
 NARASI PERMAINAN UNTUK MODERATOR
 
 Room Code: ${roomCode}
-(Moderator dapat melihat peran pemain di bagian terpisah di atas)
 
 ---
 PERSIAPAN SEBELUM MULAI:
@@ -771,35 +685,23 @@ MEMULAI PERMAINAN (MALAM PERTAMA):
 MODERATOR: "Permainan dimulai! Malam pertama telah tiba di desa kita. Semua warga, silakan tutup mata dan tidur nyenyak."
 (Pastikan semua pemain menutup mata atau menunduk)
 
-${
-  numWerewolves > 0
-    ? `
+${numWerewolves > 0 ? `
 MODERATOR: "Para Werewolf (${numWerewolves} orang), silakan buka mata kalian. Kenali teman werewolf kalian. Kalian punya waktu sejenak untuk berdiskusi tanpa suara dan memilih satu korban malam ini."
 (Beri waktu Werewolf untuk memilih.)
 MODERATOR: "Werewolf, silakan tutup mata kalian kembali."
-`
-    : ""
-}
+` : ''}
 
-${
-  numGuardian > 0
-    ? `
+${numGuardian > 0 ? `
 MODERATOR: "Guardian (${numGuardian} orang), silakan buka matamu. Malam ini, siapa yang ingin kamu lindungi dari serangan werewolf? Tunjuk satu orang."
 (Guardian menunjuk satu orang. Catat pilihan Guardian.)
 MODERATOR: "Guardian, silakan tutup matamu kembali."
-`
-    : ""
-}
+` : ''}
 
-${
-  numCenayang > 0
-    ? `
+${numCenayang > 0 ? `
 MODERATOR: "Cenayang (${numCenayang} orang), silakan buka matamu. Siapa satu orang yang ingin kamu ketahui perannya malam ini? Tunjuk satu orang."
 (Cenayang menunjuk satu orang. Moderator akan menunjukkan peran orang tersebut kepada Cenayang secara diam-diam).
 MODERATOR: "Cenayang, silakan tutup matamu kembali."
-`
-    : ""
-}
+` : ''}
 
 MODERATOR: "Pagi telah tiba! Semua warga, silakan buka mata kalian."
 
@@ -807,35 +709,26 @@ MODERATOR: (Umumkan hasil malam pertama berdasarkan aksi Werewolf & Guardian)
 "Malam tadi..."
 - Jika ada yang dimakan werewolf DAN TIDAK dilindungi Guardian: "Sayangnya, [Nama Pemain yang Dimakan] telah menjadi korban serangan werewolf." Pemain tersebut keluar dari permainan.
 - Jika yang dimakan werewolf DILINDUNGI Guardian: "Malam tadi adalah malam yang aman, tidak ada korban jiwa."
-- Jika werewolf tidak memilih korban / Guardian melindungi dirinya sendiri dan dia targetnya: "Malam tadi adalah malam yang aman, tidak ada korban jiwa." (Atau sesuaikan dengan aturan spesifik Anda)
+- Jika werewolf tidak memilih korban / Guardian melindungi dirinya sendiri dan dia targetnya: "Malam tadi adalah malam yang aman, tidak ada korban jiwa."
 
 MODERATOR: "Sekarang adalah waktunya berdiskusi. Siapa yang kalian curigai sebagai werewolf? Setelah berdiskusi, kita akan melakukan voting untuk mengeliminasi satu orang dari desa."
 
 ---
 Selanjutnya, pandu sesi diskusi dan voting. Ulangi siklus malam dan siang.
         `.trim();
-        return { assignedPlayers, narrative };
+        return { assignedPlayersData, narrative }; // Renamed for clarity
       }
 
-      // Back to home buttons
-      [backToHomeLobbyBtn, backToHomePlayerBtn, backToHomeFromNarrativeBtn].forEach((btn) => {
-        btn.addEventListener("click", () => {
-          if (roomUnsubscribe) {
-            roomUnsubscribe();
-            roomUnsubscribe = null;
-          }
-          currentRoomId = null;
-          currentPlayerName = null;
-          isModerator = false;
-          // Reset UI elements if needed
-          playerNameInput.value = "";
-          roomCodeInput.value = "";
-          showView("home");
+      [backToHomeLobbyBtn, backToHomePlayerBtn, backToHomeFromNarrativeBtn].forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (roomUnsubscribe) { roomUnsubscribe(); roomUnsubscribe = null; }
+          currentRoomId = null; currentPlayerName = null; isModerator = false;
+          playerNameInput.value = ''; roomCodeInput.value = '';
+          showView('home');
         });
       });
 
-      // --- Initial Load ---
-      showView("home");
+      showView('home');
     </script>
   </body>
 </html>
